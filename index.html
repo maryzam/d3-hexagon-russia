@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<meta charset="utf-8">
+	<head>
+		<style>
+			path {
+				fill: #ddd;
+				fill-opacity: .8;
+				stroke: #fff;
+				stroke-width: 1.5px;
+			}
+
+			line {
+				stroke: #999;
+			}
+		</style>
+		</head>
+	<body>
+		<svg width="960" height="600"></svg>
+
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
+		<script src="https://d3js.org/topojson.v2.min.js"></script>
+		<script>
+
+
+			var svg = d3.select("svg"),
+				width = +svg.attr("width"),
+				height = +svg.attr("height");
+
+			const projection = d3.geoConicEquidistant()
+				.rotate([-105, 0])
+				.center([-10, 65])
+				.scale(width * 0.7)
+				.translate([width / 2, height / 2]);
+
+			var path = d3.geoPath().projection(projection);
+
+			d3.json("data/russia.topo.json", function (error, russia) {
+				if (error) throw error;
+
+				var regions = topojson.feature(russia, russia.objects.regions).features;
+
+				regions.forEach(function (region, i) {
+					if (region.properties.NAME_1.includes("City")) { return; }
+					var centroid = path.centroid(region);
+					if (centroid.some(isNaN)) { return; }
+					region.center = {
+						x: centroid[0],
+						y: centroid[1]
+					};
+					region.area = path.area(region);
+					region.radius = Math.sqrt(region.area / Math.PI);
+				});
+
+				regions = regions.filter(function(d) { return !!d.center; });
+				regions.sort(function (a, b) { return b.area - a.area; });
+
+				svg
+					.append("g")
+					.selectAll("path")
+					.data(regions)
+					.enter()
+						.append("path")
+						.attr("d", this.path)
+						.style("fill", "rgba(0,0,0,0.1)");
+
+				var hexbin = d3.hexbin()
+					.extent([[0, 0], [width, height]])
+					.x((d) => d.center.x)
+					.y((d) => d.center.y)
+					.radius(10);
+
+				var hexRegions = hexbin(regions);
+				
+				svg
+					.append("g")
+					.attr("class", "hexagon")
+					.selectAll("path")
+					.data(hexRegions)
+					.enter()
+						.append("path")
+							.attr("d", function (d) { return hexbin.hexagon(d[0].radius); })
+							.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
+							.style("fill", "rgba(0,150,250,0.7)");
+
+			});
+
+		</script>
+	</body>
+</html>
