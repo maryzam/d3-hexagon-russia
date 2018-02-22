@@ -57,12 +57,12 @@
 
         svg
             .append("g")
+			.attr("class", "background-map")
             .selectAll("path")
             .data(geo)
             .enter()
                 .append("path")
-                .attr("d", this.path)
-                .style("fill", "rgba(0,0,0,0.1)");
+                .attr("d", this.path);
 
 
 		d3.timeout(function() {
@@ -72,12 +72,11 @@
 			}
 			
 			var regionVis = svg.append("g")
-                    .attr("class", "hexagon")
+                    .attr("class", "hexagon-map")
                     .selectAll("path")
                         .data(regions).enter()
                         .append("path")
                             .attr("d", function(d) { return hexbin.hexagon(d.radius * (d.radius < midRadius ? 1 : 1.4 )); })
-                            .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
-                            .style("fill", "rgba(0,150,250,0.7)");			
+                            .attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });			
 		});
     });
