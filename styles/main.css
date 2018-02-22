@@ -1,13 +1,14 @@
 
 .background-map path {
-	stroke: #fff;
+	stroke: white;
 	stroke-opacity: 0.1;
-	fill: #777;
-	fill-opacity: 0.1;	
+	fill: #cdcdcd;	
+	fill-opacity: 0.7;
 }
 
 .hexagon-map path {
-	stroke: #fff;
+	stroke: white;
 	fill: #1ebbd7;
-	fill-opacity: 0.7;		
+	fill-opacity: 0.7;	
+	
 }
